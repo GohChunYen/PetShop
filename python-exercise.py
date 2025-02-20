@@ -1,3 +1,4 @@
+# Python Exercise
 def filter_odd_num(numbers: list):
     odd_numbers = []
     for num in numbers:
