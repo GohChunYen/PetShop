@@ -3,7 +3,7 @@ from typing import Annotated, Optional
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, Field
 from starlette import status
-from database import SessionLocal
+from db.session import SessionLocal
 from sqlalchemy.orm import Session
 from models import Owners
 
@@ -32,28 +32,23 @@ async def create_owner(db: db_dependency, owner_request: OwnerRequest):
     db.add(owner_model)
     db.commit()
 
-# Read all owners
+# Read all owners / Find owners on the created date
 @router.get("/owners", status_code=status.HTTP_200_OK)
-async def read_all_owners(db: db_dependency):
-    owner_model = db.query(Owners).all()
+async def read_all_owners(db: db_dependency, date_created: Optional[datetime] = Query(None)):
+    
+    if date_created:
+        start_datetime = datetime.combine(date_created, datetime.min.time())
+        end_datetime = datetime.combine(date_created, datetime.max.time())
+    
+        owner_model = db.query(Owners).filter(Owners.date_created >= start_datetime, Owners.date_created <= end_datetime).all()
+    
+    else:
+        owner_model = db.query(Owners).all()
     
     if not owner_model:
         raise HTTPException(status_code=404, detail='Owners not found.')
     
     return owner_model
 
-# Find owners the user created on particular date
-@router.get("/owners/by-date", status_code=status.HTTP_200_OK)
-async def find_owner_by_date_created(db: db_dependency, date_created: datetime = Query(...)):
-    
-    start_datetime = datetime.combine(date_created, datetime.min.time())
-    end_datetime = datetime.combine(date_created, datetime.max.time())
-    
-    owner_model = db.query(Owners).filter(Owners.date_created >= start_datetime, Owners.date_created <= end_datetime).all()
-    
-    if not owner_model:
-        raise HTTPException(status_code=404, detail='Owner not found.')
-    
-    return owner_model
 
     

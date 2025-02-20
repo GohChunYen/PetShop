@@ -1,5 +1,5 @@
 from datetime import datetime
-from database import Base
+from db.session import Base
 from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
 
 class Owners(Base):

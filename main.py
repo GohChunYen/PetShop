@@ -1,11 +1,24 @@
 from fastapi import FastAPI
+from db.base_class import Base
 import models
-from database import engine
+from db.session import engine
 from routers import owners, pets
+from config import settings
 
-app = FastAPI()
+def create_tables():         
+	Base.metadata.create_all(bind=engine)
+        
+        
+def start_application():
+    app = FastAPI(title=settings.PROJECT_NAME,version=settings.PROJECT_VERSION)
+    create_tables()
+    return app
 
-models.Base.metadata.create_all(bind=engine)
+app = start_application()
 
 app.include_router(owners.router)
 app.include_router(pets.router)
+
+@app.get("/")
+def home():
+    return {"msg":"Welcome to PetShop"}

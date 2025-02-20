@@ -3,7 +3,7 @@ from typing import Annotated, Optional
 from fastapi import APIRouter, Depends, HTTPException, Path, Query
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
-from database import SessionLocal
+from db.session import SessionLocal
 from starlette import status
 from models import Pets, Owners
 from sqlalchemy import func
@@ -40,8 +40,8 @@ async def find_pet_owner_by_id(db: db_dependency, pet_id: int = Path(gt=0)):
     return owner_model
 
 # Find pet owner by pet name
-@router.get("/pets/name/{pet_name}/owner", status_code=status.HTTP_200_OK)
-async def find_pet_owner_by_name(db: db_dependency, pet_name: str = Path(min_length=3)):
+@router.get("/pets/owner", status_code=status.HTTP_200_OK)
+async def find_pet_owner_by_name(db: db_dependency, pet_name: str = Query(...)):
     pet_model = db.query(Pets).filter(Pets.name == pet_name).first()
     
     if not pet_model:
@@ -52,7 +52,7 @@ async def find_pet_owner_by_name(db: db_dependency, pet_name: str = Path(min_len
     return owner_model
 
 # Find pets by owner id
-@router.get("/owners/{owner_id}/pets", status_code=status.HTTP_200_OK)
+@router.get("/pets/owner/{owner_id}", status_code=status.HTTP_200_OK)
 async def find_pets_by_owner(db: db_dependency, owner_id: int = Path(gt=0)):
     owner_model = db.query(Owners).filter(Owners.id == owner_id).first()
     
