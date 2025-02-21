@@ -1,6 +1,7 @@
 from datetime import datetime
-from database import Base
+from db.session import Base
 from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
+
 
 class Owners(Base):
     __tablename__ = 'owners'
@@ -10,7 +11,8 @@ class Owners(Base):
     last_name = Column(String)
     date_created = Column(DateTime, default=datetime.utcnow)
     date_modified = Column(DateTime, default=datetime.utcnow)
-    
+
+
 class Pets(Base):
     __tablename__ = 'pets'
 
